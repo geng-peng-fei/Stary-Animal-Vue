@@ -66,8 +66,8 @@ export default {
   height: 35px;
   width: 35px;
   position: fixed;
-  right: 2%;
-  bottom: 10%;
+  right: 10px;
+  bottom: 50px;
   line-height: 35px;
   font-size: 25px;
   background-color: #fff;

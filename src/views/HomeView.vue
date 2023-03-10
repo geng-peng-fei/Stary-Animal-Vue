@@ -6,6 +6,7 @@
     <el-main>
       <GoTop></GoTop>
       <router-view></router-view>
+      <Chat></Chat>
     </el-main>
     <el-footer height="200px"
                style="background-color: rgb(47, 47, 47);
@@ -20,13 +21,14 @@
 import Nav from '@/components/Nav.vue'
 import Footer from '@/components/Footer.vue'
 import GoTop from '@/components/GoTop.vue'
+import Chat from '@/components/Chat.vue'
 
 export default {
-  name: 'HomeView',
   components: {
     Nav,
     Footer,
-    GoTop
+    GoTop,
+    Chat
   },
   data () {
     return {
