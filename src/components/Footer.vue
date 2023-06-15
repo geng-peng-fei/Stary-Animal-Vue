@@ -22,4 +22,8 @@ export default {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+.el-row .el-cow {
+  margin-bottom: 20px;
+}
 </style>

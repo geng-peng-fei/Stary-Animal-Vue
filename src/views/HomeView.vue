@@ -7,6 +7,7 @@
       <GoTop></GoTop>
       <router-view></router-view>
       <Chat></Chat>
+      <EditBlog></EditBlog>
     </el-main>
     <el-footer height="200px"
                style="background-color: rgb(47, 47, 47);
@@ -22,13 +23,15 @@ import Nav from '@/components/Nav.vue'
 import Footer from '@/components/Footer.vue'
 import GoTop from '@/components/GoTop.vue'
 import Chat from '@/components/Chat.vue'
+import EditBlog from "@/components/EditBlog.vue";
 
 export default {
   components: {
     Nav,
     Footer,
     GoTop,
-    Chat
+    Chat,
+    EditBlog
   },
   data () {
     return {
@@ -46,7 +49,7 @@ export default {
 .el-main,
 .el-footer {
   height: 100%;
-  padding: 0px;
+  padding: 0;
 }
 
 .nav {

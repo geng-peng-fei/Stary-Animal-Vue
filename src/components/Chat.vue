@@ -1,7 +1,7 @@
 <template>
   <div class="dialogue-wrapper">
     <div id="btn_open"
-         @click="changeShow(),initWebpack()"
+         @click="changeShow()"
          v-show="!isShow"
          class="dialogue-support-btn">
       <i class="dialogue-support-icon"></i>
@@ -21,13 +21,8 @@
         </div>
       </div>
       <div id="dialogue_contain"
-           class="dialogue-contain">
-        <!-- <p class="dialogue-service-contain">
-          <span class="dialogue-text dialogue-service-text">{{ }}</span>
-        </p>
-        <p class="dialogue-customer-contain">
-          <span class="dialogue-text dialogue-customer-text">{{ }}</span>
-        </p> -->
+           class="dialogue-contain"
+           v-html="content">
       </div>
       <div class="dialogue-submit">
         <p id="dialogue_hint"
@@ -38,70 +33,117 @@
         <textarea id="dialogue_input"
                   class="dialogue-input-text"
                   placeholder="请输入您的问题，按Enter键提交（shift+Enter换行）"
-                  v-model="msg"
-                  @keyup.enter="sendMessage(msg)"></textarea>
+                  v-model="text"
+                  @keyup.enter="sendMessage"></textarea>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+let socket;
 export default {
-  data () {
+  data() {
     return {
       isShow: false,
-      type: 0,
-      msg: '',
+      text: '',
+      content: '',
+      customerService: '',
+      clientName: '',
     }
   },
+  created() {
+    this.initWebpack()
+  },
   methods: {
-    changeShow () {
+    changeShow() {
       this.isShow = !this.isShow
     },
     //初始化websocket
-    initWebpack () {
-      var clientName = " ";
+    initWebpack() {
       if (localStorage.getItem("user")) {
-        this.type = 1;
-        clientName = JSON.parse(localStorage.getItem("user"))
+        this.clientName = JSON.parse(localStorage.getItem("user")).nickName
       } else {
-        clientName = Math.floor(Math.random() * 100000)
+        this.clientName = (Math.floor(Math.random() * 100000)).toString()
       }
       //WebSocket与普通的请求所用协议有所不同，ws等同于http，wss等同于https
-      const websocketURL = `ws://localhost:8081/ws/1/${clientName}`;
+      const websocketURL = `ws://localhost:8081/chat/customer/${this.clientName}`;
       //这里面的this都指向vue
-      this.websocket = new WebSocket(websocketURL);
-      this.websocket.onopen = this.websocketOnOpen;
-      this.websocket.onmessage = this.websocketOnMessage;
-      this.websocket.onclose = this.websocketOnClose;
-      this.websocket.onerror = this.websocketOnError;
+      socket = new WebSocket(websocketURL);
+      socket.onopen = this.websocketOnOpen;
+      socket.onmessage = this.websocketOnMessage;
+      socket.onclose = this.websocketOnClose;
+      socket.onerror = this.websocketOnError;
     },
-    websocketOnOpen () {
-      alert("WebSocket连接成功 —————— " + "当前时间" + new Date());
+    websocketOnOpen() {
       console.log("WebSocket连接成功 —————— " + "当前时间" + new Date());
     },
 
-    websocketOnMessage (msg) { //数据接收
-      this.websocket.send(msg)
+    websocketOnMessage(msg) { //数据接收
+      let _this = this;
+      //msg.data {"from":"张三","text":"你好，请问有什么可以帮您？"}
+      console.log("收到数据====" + msg.data)
+      let data = JSON.parse(msg.data)
+
+      this.customerService = data.from
+      // 构建消息内容
+      _this.createContent(data.from, null, data.text)
     },
 
-    websocketOnClose () { //关闭
-      alert("WebSocket连接关闭");
+    websocketOnClose() { //关闭
       console.log("WebSocket连接关闭");
       this.websocket.close();
     },
 
-    websocketOnError (e) { //失败
+    websocketOnError(e) { //失败
       alert("WebSocket连接发生错误" + e);
       console.log("WebSocket连接发生错误" + e);
     },
+    // 发送消息
+    sendMessage() {
+      const from = this.clientName;
+      const to = this.customerService;
+      //  message: {"from": "来自谁", "to": "发给谁", "text": "聊天文本"}
+      let message = {from: from, to: to, text: this.text}
+      console.log(message)
+      socket.send(JSON.stringify(message));  // 将组装好的json发送给服务端，由服务端进行转发
+      axios.post("/IMChat", message)
 
+      // 构建消息内容，本人消息
+      this.createContent(null, from, this.text)
+      this.text = '';
+    },
+    // 创建聊天文本
+    createContent(remoteAdmin, nowAdmin, text) {
+      // 这个方法是用来将 json的聊天消息数据转换成 html的。
+      let html
+      // 当前用户消息
+      if (nowAdmin) {
+        // nowUser 表示是否显示当前用户发送的聊天消息
+        html =
+            "<div class=\"el-row\" style=\"padding: 10px 0\">\n" +
+            "  <div class=\"el-col\" style=\"text-align: right; color:black; padding-right: 20px\">\n" +
+            "    <div class=\"tip left\">" + text + "</div>\n" +
+            "  </div>\n" +
+            "</div>";
+      } else if (remoteAdmin) {
+        // remoteUser表示远程用户聊天消息
+        html =
+            "<div class=\"el-row\" style=\"padding: 10px 0\">\n" +
+            "  <div class=\"el-col\" style=\"text-align: left; color: black; width: 100% padding-left: 20px\">\n" +
+            "    <div class=\"tip right\">" + text + "</div>\n" +
+            "  </div>\n" +
+            "</div>";
+      }
+      this.content += html;
+    }
+    ,
   }
 }
 </script>
 
 <style>
-@charset "utf-8";
 /*公共样式*/
 html {
   font-family: "Helvetica Neue", Helvetica, STHeiTi, sans-serif;
@@ -109,10 +151,12 @@ html {
   -moz-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
 }
+
 body {
   -webkit-overflow-scrolling: touch;
   margin: 0;
 }
+
 a:link,
 a:visited,
 a:hover,
@@ -120,15 +164,18 @@ a:active {
   text-decoration: none;
   color: currentColor;
 }
+
 a,
 dt,
 dd {
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
 }
+
 p {
   margin: 0;
 }
+
 input,
 button,
 select,
@@ -139,6 +186,7 @@ textarea {
   outline: 0;
   background-color: transparent;
 }
+
 /*css reset*/
 body {
   position: relative;
@@ -148,6 +196,7 @@ body {
   font-size: 14px;
   color: #fff;
 }
+
 /*右侧点击按钮*/
 .dialogue-wrapper .dialogue-support-btn {
   position: fixed;
@@ -262,6 +311,7 @@ body {
   background-color: #09d07d;
   box-sizing: border-box;
 }
+
 .dialogue-wrapper .dialogue-main .dialogue-customer-text {
   margin-left: 20px;
   display: inline-block;
@@ -274,6 +324,7 @@ body {
   background-color: #2586da;
   box-sizing: border-box;
 }
+
 .dialogue-wrapper .dialogue-main .dialogue-service-text:before {
   content: "";
   position: absolute;

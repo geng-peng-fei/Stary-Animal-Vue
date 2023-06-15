@@ -61,7 +61,9 @@ export default {
         if (res.data.success === true) {
           this.$message({
             type: 'success',
-            message: '验证码为：' + res.data.data
+            message: '验证码为：' + res.data.data,
+            showClose: true,
+            duration: 9000
           })
         }
       }).catch(err => {
@@ -88,13 +90,13 @@ export default {
       })
     },
   },
-  /** 判断上次的页面这次刷新的路由是否一样，不一样才刷新 */
-  mounted: function () {
-    if (location.href.indexOf("#reloaded") == -1) {
-      location.href = location.href + "#reloaded";
-      location.reload();
-    }
-  },
+  // /** 判断上次的页面这次刷新的路由是否一样，不一样才刷新 */
+  // mounted: function () {
+  //   if (location.href.indexOf("#reloaded") == -1) {
+  //     location.href = location.href + "#reloaded";
+  //     location.reload();
+  //   }
+  // },
 }
 </script>
 

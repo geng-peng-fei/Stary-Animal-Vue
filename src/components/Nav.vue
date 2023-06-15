@@ -8,6 +8,8 @@
     <el-menu-item index="index">主页</el-menu-item>
     <el-menu-item index="pet">宠物</el-menu-item>
     <el-menu-item index="active">活动</el-menu-item>
+    <el-menu-item index="blogHome">论坛</el-menu-item>
+    <!--      <el-menu-item index="">选项2</el-menu-item>-->
     <el-menu-item index="about">关于我们</el-menu-item>
     <el-menu-item v-if="isLogin === false"
                   @click="goLogin()">
@@ -21,19 +23,23 @@
                    :src="circleUrl"></el-avatar>
       </template>
       <el-menu-item index="user"
-                    id="userCenter">个人中心</el-menu-item>
+                    id="userCenter">个人中心
+      </el-menu-item>
       <el-menu-item index="userAdoptCenter"
-                    id="userCenter">领养中心</el-menu-item>
+                    id="userCenter">领养中心
+      </el-menu-item>
       <el-menu-item @click="loginOut()"
-                    id="userCenter">退出登录</el-menu-item>
+                    id="userCenter">退出登录
+      </el-menu-item>
     </el-submenu>
   </el-menu>
 </template>
 
 <script>
 import axios from 'axios';
+
 export default {
-  data () {
+  data() {
     return {
       activeIndex: 'index',
       userPicture: '',
@@ -42,7 +48,7 @@ export default {
       isPictureNull: true
     }
   },
-  created () {
+  created() {
     this.activeIndex = window.location.href.replace(window.location.origin, '').replace("/", "").toString()
     if (localStorage.getItem('user') != null) {
       this.userPicture = JSON.parse(localStorage.getItem('user')).picture
@@ -53,17 +59,17 @@ export default {
     }
   },
   watch: {
-    'activeIndex' () {
+    'activeIndex'() {
       this.activeIndex = window.location.href.replace(window.location.origin, '').replace("/", "").toString()
     },
   },
   methods: {
-    handleSelect (key, keyPath) {
+    handleSelect(key, keyPath) {
       console.log(key, keyPath)
       this.activeIndex = keyPath
     },
     /** 登出 */
-    loginOut () {
+    loginOut() {
       const user = JSON.parse(localStorage.getItem('user'))
       axios.post(`/user/${user.token}`).then(res => {
         if (res.data.success === true) {
@@ -73,12 +79,12 @@ export default {
       })
     },
     /** 跳转登陆 */
-    goLogin () {
+    goLogin() {
       this.$router.push('/login')
     },
     /** 下载图片 */
-    getImage (image) {
-      return `/common/download?name=${image}`
+    getImage(image) {
+      return `/common/download/user?name=${image}`
     },
   }
 }
@@ -96,7 +102,7 @@ export default {
 
 #logo {
   width: 20%;
-  margin-right: 50%;
+  margin-right: 45%;
   color: red;
   font-weight: bolder;
   font-size: 24px;
@@ -105,6 +111,7 @@ export default {
 .el-menu > .el-menu-item:last-child {
   margin-left: 2%;
 }
+
 .el-menu-item [class^="el-icon-"] {
   padding: 0;
   border: 0;

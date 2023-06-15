@@ -118,16 +118,12 @@ li {
 }
 
 #app {
-  display: flex;
-  border-radius: 50px;
-  margin: 100px auto;
-  width: 860px;
-  height: 600px;
-  background-color: #fff;
+  // border-radius: 50px;
+  // background-color: #fff;
 
   .sidebar {
     width: 60px;
-    height: 600px;
+    height: 100%;
     background: #2b2c2f;
 
     .icon {
@@ -189,7 +185,8 @@ li {
 
   .main {
     flex: 1;
-    height: 600px;
+    height: 100%;
+    width: calc(100% - 60px);
     background: #f2f2f2;
   }
 }

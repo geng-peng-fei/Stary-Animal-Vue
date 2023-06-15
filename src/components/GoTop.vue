@@ -77,10 +77,5 @@ export default {
   z-index: 998;
 }
 
-.background-color {
-  width: 100%;
-  height: 80px;
-  background-color: pink;
-}
 </style>
 
